@@ -6,10 +6,13 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import timber.log.Timber
 
 abstract class BaseFragment<V : BaseView, P : BasePresenter<V>> : Fragment() {
   protected var presenter: P? = null
     private set
+
+  private lateinit var key: String
 
   abstract fun layoutId(): Int
 
@@ -19,20 +22,39 @@ abstract class BaseFragment<V : BaseView, P : BasePresenter<V>> : Fragment() {
     return inflater.inflate(layoutId(), container, false)
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
+  override fun onStart() {
+    super.onStart()
     attachPresenter(this as V)
   }
 
   private fun attachPresenter(view: V) {
-    //TODO
-    val presenter = providePresenter()
+    key = view::class.java.name
+    val presenter: P
+    if (PresentersHolder.presenters.contains(key)) {
+      presenter = PresentersHolder.presenters[key] as P
+      Timber.e("Presenter ${checkNotNull(presenter)::class.java.simpleName} restored")
+    } else {
+      presenter = providePresenter()
+      PresentersHolder.presenters[key] = presenter
+      Timber.e("Presenter ${checkNotNull(presenter)::class.java.simpleName} created")
+    }
+
     presenter.attachView(view)
     this.presenter = presenter
   }
 
-  override fun onDestroyView() {
+  override fun onStop() {
     presenter?.detachView()
+    super.onStop()
+  }
+
+  override fun onDestroyView() {
+    Timber.e("Presenter ${checkNotNull(presenter)::class.java.simpleName} removed")
+    PresentersHolder.presenters.remove(key)
     super.onDestroyView()
   }
+}
+
+private object PresentersHolder {
+  val presenters = mutableMapOf<String, Any>()
 }

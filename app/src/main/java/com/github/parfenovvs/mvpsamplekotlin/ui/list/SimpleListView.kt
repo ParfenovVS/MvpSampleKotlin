@@ -5,4 +5,5 @@ import com.github.parfenovvs.mvpsamplekotlin.ui.base.BaseView
 
 interface SimpleListView : BaseView {
   fun showData(items: List<User>)
+  fun showDetails()
 }
