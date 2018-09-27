@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.github.parfenovvs.mvpsamplekotlin.R
+import com.github.parfenovvs.mvpsamplekotlin.di.DaggerUsersComponent
+import com.github.parfenovvs.mvpsamplekotlin.di.ServerApiModule
 import com.github.parfenovvs.mvpsamplekotlin.entity.User
 import com.github.parfenovvs.mvpsamplekotlin.ui.base.BaseFragment
 import com.github.parfenovvs.mvpsamplekotlin.ui.details.SimpleDetailsFragment
@@ -20,7 +22,10 @@ class SimpleListFragment : BaseFragment<SimpleListView, SimpleListPresenter>(), 
   }
 
   override fun providePresenter(): SimpleListPresenter {
-    return SimpleListPresenter()
+    val component = DaggerUsersComponent.builder()
+        .serverApiModule(ServerApiModule())
+        .build()
+    return component.listPresenter()
   }
 
   override fun showData(items: List<User>) {
