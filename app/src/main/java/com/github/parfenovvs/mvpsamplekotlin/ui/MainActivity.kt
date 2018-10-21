@@ -1,9 +1,11 @@
 package com.github.parfenovvs.mvpsamplekotlin.ui
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.github.parfenovvs.mvpsamplekotlin.R
-import com.github.parfenovvs.mvpsamplekotlin.ui.list.SimpleListFragment
+import com.github.parfenovvs.mvpsamplekotlin.di.DaggerUsersComponent
+import com.github.parfenovvs.mvpsamplekotlin.di.ServerApiModule
+import com.github.parfenovvs.mvpsamplekotlin.ui.list.UsersFragment
 
 
 class MainActivity : AppCompatActivity() {
@@ -13,8 +15,12 @@ class MainActivity : AppCompatActivity() {
     setContentView(R.layout.activity_main)
 
     if (savedInstanceState == null) {
+      val fragment = UsersFragment()
+      fragment.component = DaggerUsersComponent.builder()
+          .serverApiModule(ServerApiModule())
+          .build()
       supportFragmentManager.beginTransaction()
-          .add(R.id.container, SimpleListFragment())
+          .add(R.id.container, fragment)
           .commitAllowingStateLoss()
     }
   }

@@ -5,6 +5,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Singleton
 class UserRepository @Inject constructor(private val api: ServerApi) {
 
   init {

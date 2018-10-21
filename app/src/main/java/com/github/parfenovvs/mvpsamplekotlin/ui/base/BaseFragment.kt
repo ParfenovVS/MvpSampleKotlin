@@ -1,11 +1,11 @@
 package com.github.parfenovvs.mvpsamplekotlin.ui.base
 
 import android.os.Bundle
-import android.support.annotation.LayoutRes
-import android.support.v4.app.Fragment
+import androidx.annotation.LayoutRes
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import timber.log.Timber
 
 abstract class BaseFragment<V : BaseView, P : BasePresenter<V>> : Fragment() {
@@ -28,17 +28,7 @@ abstract class BaseFragment<V : BaseView, P : BasePresenter<V>> : Fragment() {
   }
 
   private fun attachPresenter(view: V) {
-    key = view::class.java.name
-    val presenter: P
-    if (PresentersHolder.presenters.contains(key)) {
-      presenter = PresentersHolder.presenters[key] as P
-      Timber.e("Presenter ${checkNotNull(presenter)::class.java.simpleName} restored")
-    } else {
-      presenter = providePresenter()
-      PresentersHolder.presenters[key] = presenter
-      Timber.e("Presenter ${checkNotNull(presenter)::class.java.simpleName} created")
-    }
-
+    val presenter = providePresenter()
     presenter.attachView(view)
     this.presenter = presenter
   }
@@ -47,14 +37,4 @@ abstract class BaseFragment<V : BaseView, P : BasePresenter<V>> : Fragment() {
     presenter?.detachView()
     super.onStop()
   }
-
-  override fun onDestroyView() {
-    Timber.e("Presenter ${checkNotNull(presenter)::class.java.simpleName} removed")
-    PresentersHolder.presenters.remove(key)
-    super.onDestroyView()
-  }
-}
-
-private object PresentersHolder {
-  val presenters = mutableMapOf<String, Any>()
 }

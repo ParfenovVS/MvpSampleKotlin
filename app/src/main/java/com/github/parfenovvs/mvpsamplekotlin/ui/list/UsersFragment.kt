@@ -1,31 +1,30 @@
 package com.github.parfenovvs.mvpsamplekotlin.ui.list
 
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.github.parfenovvs.mvpsamplekotlin.R
-import com.github.parfenovvs.mvpsamplekotlin.di.DaggerUsersComponent
-import com.github.parfenovvs.mvpsamplekotlin.di.ServerApiModule
+import com.github.parfenovvs.mvpsamplekotlin.di.UsersComponent
 import com.github.parfenovvs.mvpsamplekotlin.entity.User
 import com.github.parfenovvs.mvpsamplekotlin.ui.base.BaseFragment
-import com.github.parfenovvs.mvpsamplekotlin.ui.details.SimpleDetailsFragment
-import com.github.parfenovvs.mvpsamplekotlin.ui.list.SimpleListFragment.SimpleListAdapter.VH
-import kotlinx.android.synthetic.main.fragment_simple_list.recyclerView
-import kotlinx.android.synthetic.main.item_simple.view.emailTextView
-import kotlinx.android.synthetic.main.item_simple.view.nameTextView
+import com.github.parfenovvs.mvpsamplekotlin.ui.details.UserDetailsFragment
+import com.github.parfenovvs.mvpsamplekotlin.ui.list.UsersFragment.SimpleListAdapter.VH
+import kotlinx.android.synthetic.main.fragment_users.recyclerView
+import kotlinx.android.synthetic.main.item_user.view.emailTextView
+import kotlinx.android.synthetic.main.item_user.view.nameTextView
+import timber.log.Timber
 
-class SimpleListFragment : BaseFragment<SimpleListView, SimpleListPresenter>(), SimpleListView {
+
+class UsersFragment : BaseFragment<UsersView, UsersPresenter>(), UsersView {
+  lateinit var component: UsersComponent
 
   override fun layoutId(): Int {
-    return R.layout.fragment_simple_list
+    return R.layout.fragment_users
   }
 
-  override fun providePresenter(): SimpleListPresenter {
-    val component = DaggerUsersComponent.builder()
-        .serverApiModule(ServerApiModule())
-        .build()
-    return component.listPresenter()
+  override fun providePresenter(): UsersPresenter {
+    return component.presenter()
   }
 
   override fun showData(items: List<User>) {
@@ -33,9 +32,11 @@ class SimpleListFragment : BaseFragment<SimpleListView, SimpleListPresenter>(), 
     recyclerView.adapter = adapter
   }
 
-  override fun showDetails() {
+  override fun showDetails(user: User) {
+    val fragment = UserDetailsFragment()
+    fragment.component = component
     fragmentManager?.beginTransaction()
-        ?.replace(R.id.container, SimpleDetailsFragment())
+        ?.replace(R.id.container, fragment)
         ?.addToBackStack(null)
         ?.commitAllowingStateLoss()
   }
@@ -43,7 +44,7 @@ class SimpleListFragment : BaseFragment<SimpleListView, SimpleListPresenter>(), 
   inner class SimpleListAdapter(private val items: List<User>) : RecyclerView.Adapter<VH>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): VH {
-      return VH(LayoutInflater.from(parent.context).inflate(R.layout.item_simple, parent, false))
+      return VH(LayoutInflater.from(parent.context).inflate(R.layout.item_user, parent, false))
     }
 
     override fun getItemCount(): Int {
